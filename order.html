@@ -10,6 +10,9 @@
       rel="stylesheet"
     />
     <style>
+      body {
+        color: white;
+      }
       body::before {
         content: "";
         position: fixed;
@@ -17,11 +20,11 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: url("library.jpg") no-repeat center center/cover;
-        opacity: 0.5;
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.6)),
+          url("library.jpg") no-repeat center center/cover;
         z-index: -2;
       }
-      .background-overlay {
+      /* .background-overlay {
         position: fixed;
         top: 0;
         left: 0;
@@ -29,6 +32,16 @@
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5);
         z-index: -1;
+      } */
+      nav {
+        background-color: rgb(255, 255, 255, 0.1);
+      }
+      .navbar .nav-link {
+        font-size: 1.2rem;
+        color: #fff;
+      }
+      .navbar {
+        backdrop-filter: blur(10px);
       }
     </style>
   </head>
@@ -49,8 +62,7 @@
       integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
       crossorigin="anonymous"
     ></script>
-    <nav class="navbar navbar-expand-lg navbar navbar-dark bg-dark">
-      <a class="navbar-brand" href="#">LIBRERY</a>
+    <nav class="navbar navbar-expand-lg">
       <button
         class="navbar-toggler"
         type="button"
@@ -64,7 +76,7 @@
       </button>
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
+        <ul class="navbar-nav mx-auto ulnav">
           <li class="nav-item active">
             <a class="nav-link" href="index.html">หน้าแรก</a>
           </li>
@@ -75,22 +87,17 @@
             <a class="nav-link" href="manage-books.html">จัดการหนังสือ</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="login.html">เข้าสู่ระบบ</a>
+            <a class="nav-link" href="listOrder.html">รายการยืม</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="contact.html">ติดต่อ</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="listOrder.html">รายการยืม</a>
           </li>
         </ul>
       </div>
     </nav>
 
-    <div class="background-overlay"></div>
-
     <!-- ฟอร์มกรอกข้อมูลลูกค้า -->
-    <div class="container mt-4">
+    <div class="container mt-4" style="max-width: 800px">
       <h4 class="text-center mb-3">📝 ข้อมูลผู้ยืม</h4>
       <form id="orderForm">
         <div class="mb-3">

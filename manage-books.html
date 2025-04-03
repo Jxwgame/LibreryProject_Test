@@ -8,47 +8,63 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
-    <!-- ลบ jQuery, Popper และ Bootstrap 4 JS ออก เพราะไม่จำเป็นสำหรับ Bootstrap 5 -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   </head>
+  <style>
+    nav {
+      background-color: rgb(255, 255, 255, 0.1);
+    }
+    .navbar .nav-link {
+      font-size: 1.2rem;
+      color: #000;
+    }
+    .navbar {
+      backdrop-filter: blur(10px);
+    }
+  </style>
+  <nav class="navbar navbar-expand-lg">
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mx-auto ulnav">
+        <li class="nav-item active">
+          <a class="nav-link" href="index.html">หน้าแรก</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="order.html">ยืมหนังสือ</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="manage-books.html">จัดการหนังสือ</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="listOrder.html">รายการยืม</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="contact.html">ติดต่อ</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
   <body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <a class="navbar-brand" href="#">LIBRERY</a>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
+    <!-- Navigation Bar -->
 
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
-            <a class="nav-link" href="index.html">หน้าแรก</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="order.html">ยืมหนังสือ</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="manage-books.html">จัดการหนังสือ</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="login.html">เข้าสู่ระบบ</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="contact.html">ติดต่อ</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="listOrder.html">รายการยืม</a>
-          </li>
-        </ul>
-      </div>
-    </nav>
     <div class="container py-5">
       <h2 class="text-center mb-4">จัดการหนังสือ</h2>
       <button
@@ -96,7 +112,12 @@
                 <label for="editBookTitle" class="form-label"
                   >ชื่อหนังสือ</label
                 >
-                <input type="text" class="form-control" id="editBookTitle" />
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editBookTitle"
+                  required
+                />
               </div>
               <div class="mb-3">
                 <label for="editBookDescription" class="form-label"
@@ -105,6 +126,7 @@
                 <textarea
                   class="form-control"
                   id="editBookDescription"
+                  required
                 ></textarea>
               </div>
               <div class="mb-3">
@@ -140,58 +162,8 @@
     </div>
 
     <!-- Bootstrap 5 JS Bundle (รวม Popper) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
     <script>
-      let currentEditId = null;
-
-      function loadBooks() {
-        fetch("http://localhost:3000/book")
-          .then((res) => res.json())
-          .then((data) => {
-            const bookTable = document.getElementById("bookTable");
-            bookTable.innerHTML = data
-              .map(
-                (book) => `
-            <tr>
-              <td>${book.bookId}</td>
-              <td>${book.title}</td>
-              <td>${book.description}</td>
-              <td>
-                <button 
-                  class="btn btn-warning btn-sm" 
-                  onclick="openEditModal(${book.bookId}, '${book.title.replace(
-                  /'/g,
-                  "\\'"
-                )}', '${book.description.replace(/'/g, "\\'")}')"
-                >
-                  ✏️ แก้ไข
-                </button>
-                <button class="btn btn-danger btn-sm" onclick="deleteBook(${
-                  book.bookId
-                })">
-                  🗑️ ลบ
-                </button>
-              </td>
-            </tr>
-          `
-              )
-              .join("");
-          })
-          .catch((err) => console.error("Error loading books:", err));
-      }
-
-      function openEditModal(bookId, title, description) {
-        currentEditId = bookId;
-        document.getElementById("editBookId").value = bookId;
-        document.getElementById("editBookTitle").value = title;
-        document.getElementById("editBookDescription").value = description;
-        // ลบบรรทัดการกำหนดค่า editImage เพราะไม่จำเป็นและจะทำให้เกิด error
-        // document.getElementById("editImage").files[0] = image;
-        new bootstrap.Modal(document.getElementById("editBookModal")).show();
-      }
-
-      // ฟังก์ชันสำหรับแปลงไฟล์เป็น Base64 (Data URL)
+      // ฟังก์ชันแปลงไฟล์เป็น Base64 โดยใช้ FileReader
       function fileToBase64(file) {
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
@@ -201,41 +173,86 @@
         });
       }
 
+      // โหลดข้อมูลหนังสือจาก server และแสดงในตาราง
+      function loadBooks() {
+        fetch("http://localhost:3000/book")
+          .then((res) => res.json())
+          .then((data) => {
+            const bookTable = document.getElementById("bookTable");
+            bookTable.innerHTML = data
+              .map(
+                (book) => `
+                <tr>
+                  <td>${book.bookId}</td>
+                  <td>${book.title}</td>
+                  <td>${book.description}</td>
+                  <td>
+                    <button 
+                      class="btn btn-warning btn-sm" 
+                      onclick="openEditModal(${
+                        book.bookId
+                      }, '${book.title.replace(
+                  /'/g,
+                  "\\'"
+                )}', '${book.description.replace(/'/g, "\\'")}')"
+                    >
+                      ✏️ แก้ไข
+                    </button>
+                    <button 
+                      class="btn btn-danger btn-sm" 
+                      onclick="deleteBook(${book.bookId})"
+                    >
+                      🗑️ ลบ
+                    </button>
+                  </td>
+                </tr>
+              `
+              )
+              .join("");
+          })
+          .catch((err) => console.error("Error loading books:", err));
+      }
+
+      // เปิด modal สำหรับแก้ไขหนังสือและแสดงข้อมูลเดิม
+      function openEditModal(bookId, title, description) {
+        document.getElementById("editBookId").value = bookId;
+        document.getElementById("editBookTitle").value = title;
+        document.getElementById("editBookDescription").value = description;
+        document.getElementById("editImage").value = "";
+        new bootstrap.Modal(document.getElementById("editBookModal")).show();
+      }
+
       // ฟังก์ชันสำหรับส่งข้อมูลแก้ไขหนังสือด้วย PUT request
-      async function updateBook(event) {
-        event.preventDefault(); // ห้ามส่ง form แบบปกติ
-
-        // ดึงข้อมูลจากฟอร์ม
-        const id = document.getElementById("bookId").value;
-        const title = document.getElementById("bookTitle").value;
-        const description = document.getElementById("bookDescription").value;
-        const imageInput = document.getElementById("bookImage");
-        const file = imageInput.files[0];
-
-        // ตรวจสอบข้อมูลที่จำเป็น
-        if (!title || !description) {
-          alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-          return;
-        }
-        if (!file) {
-          alert("กรุณาเลือกไฟล์รูปภาพ");
-          return;
-        }
-
+      async function updateBook() {
         try {
-          // แปลงไฟล์เป็น Base64
-          const base64Image = await fileToBase64(file);
+          const id = document.getElementById("editBookId").value;
+          const title = document.getElementById("editBookTitle").value;
+          const description = document.getElementById(
+            "editBookDescription"
+          ).value;
+          const imageInput = document.getElementById("editImage");
+          const file = imageInput.files[0];
 
-          // เตรียมข้อมูลส่งไปยังเซิร์ฟเวอร์
-          const requestData = { title, description, image: base64Image };
+          // ตรวจสอบข้อมูลที่จำเป็น
+          if (!title || !description) {
+            alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+            return;
+          }
+          if (!file) {
+            alert("กรุณาเลือกไฟล์รูปภาพ");
+            return;
+          }
 
-          // ส่ง PUT request ไปยังเซิร์ฟเวอร์
+          // สร้าง FormData แล้วแนบข้อมูลที่ต้องการส่ง
+          const formData = new FormData();
+          formData.append("title", title);
+          formData.append("description", description);
+          formData.append("image", file);
+
+          // ส่ง PUT request โดยไม่ต้องระบุ Content-Type (browser จะตั้งค่าเอง)
           const response = await fetch(`http://localhost:3000/book/${id}`, {
             method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(requestData),
+            body: formData,
           });
 
           if (!response.ok) {
@@ -244,13 +261,19 @@
           }
 
           const result = await response.json();
-          alert(result.message);
+          alert(result.message || "อัปเดตข้อมูลสำเร็จ!");
+          loadBooks();
+          bootstrap.Modal.getInstance(
+            document.getElementById("editBookModal")
+          ).hide();
+          document.getElementById("editBookForm").reset();
         } catch (error) {
           console.error("Error updating book:", error);
           alert(`ไม่สามารถอัปเดตข้อมูลได้: ${error.message}`);
         }
       }
 
+      // ฟังก์ชันสำหรับลบหนังสือ
       function deleteBook(bookId) {
         if (confirm("คุณแน่ใจหรือไม่ว่าต้องการลบหนังสือเล่มนี้?")) {
           fetch(`http://localhost:3000/book/${bookId}`, { method: "DELETE" })
@@ -264,12 +287,13 @@
             })
             .then((result) => {
               alert(result.message || "ลบข้อมูลสำเร็จ!");
-              loadBooks(); // refresh ตาราง
+              loadBooks();
             })
             .catch((err) => console.error("Error deleting book:", err));
         }
       }
 
+      // โหลดข้อมูลหนังสือเมื่อเปิดหน้าเว็บ
       loadBooks();
     </script>
   </body>

@@ -74,7 +74,7 @@ app.post("/login", (req, res) => {
   });
 });
 
-// 📌 Image multer
+// 📌 CRUD Routes
 const multer = require("multer");
 const { error } = require("console");
 
@@ -94,6 +94,7 @@ app.post("/book", upload.single("image"), (req, res) => {
   });
 });
 
+// Get Book หน้า Manage-books
 app.get("/book", (req, res) => {
   // รับค่าจาก query string (เช่น /book?bookId=1)
   const { bookId } = req.query;
@@ -122,67 +123,38 @@ app.get("/book", (req, res) => {
   }
 });
 
-app.get("/book/image", (req, res) => {
-  const sql = "SELECT bookId, title, description, image FROM book";
-  db.query(sql, (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    if (results.length === 0) {
-      return res.status(404).json({ error: "No books found" });
-    }
+// // UPDATE BOOK
+app.put("/book/:id", upload.single("image"), (req, res) => {
+  const { title, description } = req.body;
+  const bookId = req.params.id;
 
-    // แปลงข้อมูลของแต่ละหนังสือ
-    const books = results.map((book) => {
-      let imageUrl = null;
-      if (book.image) {
-        const base64Image = Buffer.from(book.image).toString("base64");
-        imageUrl = `data:image/jpeg;base64,${base64Image}`;
-      }
-      return {
-        bookId: book.bookId,
-        title: book.title,
-        description: book.description,
-        image: imageUrl,
-      };
+  // ตรวจสอบข้อมูลที่จำเป็น: title, description และไฟล์ที่อัปโหลดต้องมี
+  if (!title || !description || !req.file) {
+    return res.status(400).json({
+      error: "ต้องระบุชื่อหนังสือ, คำอธิบาย และรูปภาพ",
     });
-
-    res.json(books);
-  });
-});
-
-// // แก้ไขข้อมูลหนังสือ
-app.put("/book/:id", (req, res) => {
-  const { title, description, image } = req.body;
-
-  // ตรวจสอบว่ามีข้อมูล title, description และ image
-  if (!title || !description || !image) {
-    return res
-      .status(400)
-      .json({ error: "ต้องระบุชื่อหนังสือ, คำอธิบาย และรูปภาพ" });
   }
 
-  // ถ้า image ไม่ได้เริ่มต้นด้วย data URL prefix ให้แปลงเป็น data URL แบบ jpeg
-  const imageUrl = image.startsWith("data:image")
-    ? image
-    : `data:image/jpeg;base64,${Buffer.from(image).toString("base64")}`;
+  // ใช้ Buffer ตรง ๆ เหมือนใน POST โดยไม่ต้องแปลงเป็น Base64
+  const imageBuffer = req.file.buffer;
 
   // อัปเดตข้อมูลหนังสือในฐานข้อมูล
   db.query(
     "UPDATE book SET title = ?, description = ?, image = ? WHERE bookId = ?",
-    [title, description, imageUrl, req.params.id],
+    [title, description, imageBuffer, bookId],
     (err, result) => {
-      if (err) return res.status(500).json({ error: err.message });
-
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
       if (result.affectedRows === 0) {
         return res.status(404).json({ error: "ไม่พบหนังสือที่ต้องการแก้ไข" });
       }
-
       res.json({ message: "อัปเดตหนังสือสำเร็จ", data: result });
     }
   );
 });
-// ลบหนังสือ
+
+// DELETE BOOK
 app.delete("/book/:id", (req, res) => {
   db.query(
     "DELETE FROM book WHERE bookId = ?",
@@ -194,6 +166,7 @@ app.delete("/book/:id", (req, res) => {
   );
 });
 
+// POST ORDER
 app.post("/order", (req, res) => {
   const { name_customer, borrowDate, returnDate } = req.body;
 
@@ -212,6 +185,7 @@ app.post("/order", (req, res) => {
   );
 });
 
+// GET TRANSACTION
 app.get("/transaction", (req, res) => {
   const sql =
     "SELECT transactionId, name_customer, DATE_FORMAT(borrowDate, '%d/%m/%Y') AS borrowDate, DATE_FORMAT(returnDate, '%d/%m/%Y') AS returnDate FROM transaction";
@@ -228,7 +202,36 @@ app.get("/transaction", (req, res) => {
    ส่วนของ API สำหรับจัดการธุรกรรมการยืมหนังสือ (Transactions)
 ============================================= */
 
-// ดึงข้อมูลธุรกรรมทั้งหมด (พร้อม join กับข้อมูลสมาชิกและหนังสือ)
+// Get Image
+app.get("/book/image", (req, res) => {
+  const sql = "SELECT bookId, title, description, image FROM book";
+  db.query(sql, (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ error: "No books found" });
+    }
+
+    // แปลงข้อมูลของแต่ละหนังสือ
+    const books = results.map((book) => {
+      let imageUrl = null;
+      if (book.image) {
+        const base64Image = Buffer.from(book.image).toString("base64");
+        imageUrl = `data:image/jpeg;base64,${base64Image}`;
+      }
+
+      return {
+        bookId: book.bookId,
+        title: book.title,
+        description: book.description,
+        image: imageUrl,
+      };
+    });
+
+    res.json(books);
+  });
+});
 
 // เริ่มเซิร์ฟเวอร์
 const PORT = 3000;
