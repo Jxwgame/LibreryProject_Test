@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>จัดการหนังสือ</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-light">
+    <div class="container py-5">
+      <h2 class="text-center mb-4">จัดการหนังสือ</h2>
+      <button class="btn btn-success mb-3" onclick="addBook()">
+        + เพิ่มหนังสือ
+      </button>
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>ชื่อหนังสือ</th>
+            <th>รายละเอียด</th>
+            <th>จัดการ</th>
+          </tr>
+        </thead>
+        <tbody id="bookTable"></tbody>
+      </table>
+    </div>
+
+    <!-- Edit Book Modal -->
+    <!-- Modal Edit Book -->
+    <div
+      class="modal fade"
+      id="editBookModal"
+      tabindex="-1"
+      aria-labelledby="editBookModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <form id="editBookForm">
+          <input type="hidden" id="editBookId" />
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editBookModalLabel">แก้ไขหนังสือ</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="ปิด"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="editBookTitle" class="form-label"
+                  >ชื่อหนังสือ</label
+                >
+                <input type="text" class="form-control" id="editBookTitle" />
+              </div>
+              <div class="mb-3">
+                <label for="editBookDescription" class="form-label"
+                  >คำอธิบาย</label
+                >
+                <textarea
+                  class="form-control"
+                  id="editBookDescription"
+                ></textarea>
+              </div>
+              <!-- หากไม่ต้องการอัปเดตรูปภาพ ก็สามารถลบส่วนนี้ออกได้ -->
+              <div class="mb-3">
+                <label class="form-label">ภาพปัจจุบัน</label>
+                <img
+                  id="editBookImagePreview"
+                  src=""
+                  alt="ไม่มีรูปภาพ"
+                  class="img-thumbnail"
+                  style="max-height: 200px"
+                />
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                ปิด
+              </button>
+              <button
+                type="button"
+                class="btn btn-primary"
+                onclick="updateBook()"
+              >
+                บันทึกการแก้ไข
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS และ Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      let currentEditId = null;
+
+      function loadBooks() {
+        fetch("http://localhost:3000/book")
+          .then((res) => res.json())
+          .then((data) => {
+            const bookTable = document.getElementById("bookTable");
+            bookTable.innerHTML = data
+              .map(
+                (book) => `
+            <tr>
+              <td>${book.bookId}</td>
+              <td>${book.title}</td>
+              <td>${book.description}</td>
+              <td>
+                <button 
+                  class="btn btn-warning btn-sm" 
+                  onclick="openEditModal(${book.bookId}, '${book.title.replace(
+                  /'/g,
+                  "\\'"
+                )}', '${book.description.replace(/'/g, "\\'")}')"
+                >
+                  ✏️ แก้ไข
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="deleteBook(${
+                  book.bookId
+                })">
+                  🗑️ ลบ
+                </button>
+              </td>
+            </tr>
+          `
+              )
+              .join("");
+          })
+          .catch((err) => console.error("Error loading books:", err));
+      }
+
+      function openEditModal(bookId, title, description) {
+        currentEditId = bookId;
+        document.getElementById("editBookId").value = bookId;
+        document.getElementById("editBookTitle").value = title;
+        document.getElementById("editBookDescription").value = description;
+        // ตั้งค่า preview รูปให้เป็นค่าว่างหรือค่าที่มีอยู่ ถ้ามี
+        document.getElementById("editBookImagePreview").src = "";
+        new bootstrap.Modal(document.getElementById("editBookModal")).show();
+      }
+
+      async function updateBook() {
+        try {
+          const id = document.getElementById("editBookId").value;
+          const title = document.getElementById("editBookTitle").value;
+          const description = document.getElementById(
+            "editBookDescription"
+          ).value;
+
+          // Validation
+          if (!title || !description) {
+            alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+            return;
+          }
+
+          // Prepare request data สำหรับ title และ description เท่านั้น
+          const requestData = { title, description };
+
+          // ส่ง PUT request โดยใช้ JSON
+          const response = await fetch(`http://localhost:3000/book/${id}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(requestData),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "เกิดข้อผิดพลาดในการอัปเดต");
+          }
+
+          const result = await response.json();
+          alert(result.message || "อัปเดตข้อมูลสำเร็จ!");
+
+          await loadBooks();
+
+          const modal = bootstrap.Modal.getInstance(
+            document.getElementById("editBookModal")
+          );
+          modal.hide();
+
+          document.getElementById("editBookForm").reset();
+        } catch (error) {
+          console.error("Error updating book:", error);
+          alert(`ไม่สามารถอัปเดตข้อมูลได้: ${error.message}`);
+        }
+      }
+
+      function deleteBook(bookId) {
+        if (confirm("คุณแน่ใจหรือไม่ว่าต้องการลบหนังสือเล่มนี้?")) {
+          fetch(`http://localhost:3000/book/${bookId}`, { method: "DELETE" })
+            .then(() => loadBooks())
+            .catch((err) => console.error("Error deleting book:", err));
+        }
+      }
+
+      loadBooks();
+    </script>
+  </body>
+</html>

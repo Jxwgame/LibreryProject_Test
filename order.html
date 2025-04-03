@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ระบบยืมซื้อหนังสือ</title>
+    <!-- Bootstrap 5.3 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url("library.jpg") no-repeat center center/cover;
+        opacity: 0.5;
+        z-index: -2;
+      }
+      .background-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: -1;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
+    <nav class="navbar navbar-expand-lg navbar navbar-dark bg-dark">
+      <a class="navbar-brand" href="#">LIBRERY</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="index.html">หน้าแรก</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="order.html">ยืมหนังสือ</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="manage-books.html">จัดการหนังสือ</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="login.html">เข้าสู่ระบบ</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="contact.html">ติดต่อ</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="listOrder.html">รายการยืม</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="background-overlay"></div>
+
+    <!-- ฟอร์มกรอกข้อมูลลูกค้า -->
+    <div class="container mt-4">
+      <h4 class="text-center mb-3">📝 ข้อมูลผู้ยืม</h4>
+      <form id="orderForm">
+        <div class="mb-3">
+          <label for="nameCustomer" class="form-label">ชื่อ-นามสกุล:</label>
+          <input type="text" class="form-control" id="nameCustomer" required />
+        </div>
+        <div class="mb-3">
+          <label for="borrowDate" class="form-label">วันที่ยืม:</label>
+          <input type="date" class="form-control" id="borrowDate" required />
+        </div>
+        <div class="mb-3">
+          <label for="returnDate" class="form-label">วันที่คืน:</label>
+          <input type="date" class="form-control" id="returnDate" required />
+        </div>
+        <button type="submit" class="btn btn-success w-100">
+          ยืนยันการยืม
+        </button>
+      </form>
+    </div>
+    <script>
+      document
+        .getElementById("orderForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const name_customer = document.getElementById("nameCustomer").value;
+          const borrowDate = document.getElementById("borrowDate").value;
+          const returnDate = document.getElementById("returnDate").value;
+
+          const orderData = { name_customer, borrowDate, returnDate };
+
+          try {
+            const response = await fetch("http://localhost:3000/order", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(orderData),
+            });
+
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.error || "เกิดข้อผิดพลาด");
+            }
+
+            const result = await response.json();
+            alert(result.message || "ยืนยันการยืมเรียบร้อยแล้ว");
+            document.getElementById("orderForm").reset();
+          } catch (error) {
+            console.error("Error:", error);
+            alert(`ไม่สามารถส่งข้อมูลได้: ${error.message}`);
+          }
+        });
+    </script>
+  </body>
+</html>

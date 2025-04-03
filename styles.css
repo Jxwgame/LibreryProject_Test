@@ -1,0 +1,42 @@
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("library.jpg") no-repeat center center/cover;
+}
+/* ทำให้พื้นหลังจางลง */
+.background-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+/* ตั้งค่าสไตล์ของเนื้อหา */
+.container {
+  position: relative;
+  text-align: center;
+  padding: 50px;
+  color: rgb(0, 0, 0); /* เปลี่ยนสีตัวหนังสือถ้าจำเป็น */
+}
+.alert {
+  display: flex;
+  align-items: center; /* ทำให้ข้อความอยู่กลาง */
+  justify-content: center; /* ทำให้ข้อความอยู่กลาง */
+  height: 800%; /* กำหนดความสูงให้เต็มที่ */
+  width: 40%; /* กำหนดความกว้างให้เต็มที่ */
+  margin: 0 auto; /* จัดกลาง */
+  padding: 20px; /* เพิ่ม padding */
+
+  border-radius: 15px; /* ทำให้มุมมน */
+  box-shadow: 1 4px 8px rgba(0, 0, 0, 0.4); /* เพิ่มเงาให้กับกล่อง */
+  font-size: 20px; /* ปรับขนาดตัวหนังสือ */
+  color: rgb(0, 0, 0); /* เปลี่ยนสีตัวหนังสือเป็นสีดำ */
+  text-align: center; /* จัดข้อความให้อยู่กลาง */
+  font-size: 30px; /* ปรับขนาดตัวหนังสือ */
+  font-weight: bold; /* ทำให้ตัวหนา */
+}
